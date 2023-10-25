@@ -9,33 +9,47 @@ use utils::parse_json_and_print;
 
 /// Crusty JSON parser
 #[derive(Parser)]
-#[clap(group = ArgGroup::new("input").required(true).args(&["json", "file"]))]
+#[clap(group = ArgGroup::new("input").required(true).args(&["json", "file", "url"]))]
 struct Args {
     /// In-line json to parse from
-    #[clap(conflicts_with = "file")]
+    #[clap(conflicts_with_all = ["file", "url"])]
     json: Option<String>,
 
     /// Path to json file to parse from
-    #[clap(short, long, conflicts_with = "json")]
+    #[clap(short, long, conflicts_with_all = ["json", "url"])]
     file: Option<PathBuf>,
+
+    /// Path to json file to parse from
+    #[clap(short, long, conflicts_with_all = ["json", "file"])]
+    url: Option<String>,
 }
 
 fn cli() {
     let args = Args::parse();
 
-    if let Some(json) = args.json {
-        parse_json_and_print(json);
-    } else if let Some(file_path) = args.file {
-        match fs::read_to_string(file_path) {
-            Ok(file_content) => {
-                parse_json_and_print(file_content);
-            }
-            Err(err) => {
-                eprintln!("{}", err);
-            }
+    match args {
+        Args {
+            json: Some(text), ..
+        } => {
+            parse_json_and_print(text);
         }
-    } else {
-        unreachable!();
+        Args {
+            file: Some(file_path),
+            ..
+        } => match fs::read_to_string(file_path) {
+            Ok(file_content) => parse_json_and_print(file_content),
+            Err(err) => eprintln!("{}", err),
+        },
+        Args { url: Some(url), .. } => match reqwest::blocking::get(url) {
+            Ok(res) => match res.text() {
+                Ok(text) => {
+                    parse_json_and_print(text);
+                }
+                Err(err) => eprintln!("{}", err),
+            },
+            Err(err) => eprintln!("{}", err),
+        },
+        _ => unreachable!(),
     }
 }
 
