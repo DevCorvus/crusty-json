@@ -3,7 +3,8 @@ mod parser;
 mod utils;
 
 use clap::{ArgGroup, Parser};
-use std::{fs, path::PathBuf};
+use nonblock::NonBlockingReader;
+use std::{fs, io, path::PathBuf};
 use utils::parse_json_and_print;
 
 /// Crusty JSON parser
@@ -19,7 +20,7 @@ struct Args {
     file: Option<PathBuf>,
 }
 
-fn main() {
+fn cli() {
     let args = Args::parse();
 
     if let Some(json) = args.json {
@@ -35,5 +36,25 @@ fn main() {
         }
     } else {
         unreachable!();
+    }
+}
+
+fn main() {
+    let stdin = io::stdin();
+    let mut nonblock_stdin = NonBlockingReader::from_fd(stdin).unwrap();
+
+    while !nonblock_stdin.is_eof() {
+        let mut buffer = String::new();
+        nonblock_stdin
+            .read_available_to_string(&mut buffer)
+            .unwrap();
+
+        if !buffer.is_empty() {
+            parse_json_and_print(buffer);
+            break;
+        } else {
+            cli();
+            break;
+        }
     }
 }
