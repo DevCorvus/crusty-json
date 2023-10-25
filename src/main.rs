@@ -11,15 +11,15 @@ use utils::parse_json_and_print;
 #[derive(Parser)]
 #[clap(group = ArgGroup::new("input").required(true).args(&["json", "file", "url"]))]
 struct Args {
-    /// In-line json to parse from
+    /// In-line json
     #[clap(conflicts_with_all = ["file", "url"])]
     json: Option<String>,
 
-    /// Path to json file to parse from
+    /// Path to load file
     #[clap(short, long, conflicts_with_all = ["json", "url"])]
     file: Option<PathBuf>,
 
-    /// Path to json file to parse from
+    /// URL to fetch
     #[clap(short, long, conflicts_with_all = ["json", "file"])]
     url: Option<String>,
 }
