@@ -45,24 +45,12 @@ pub fn lexer(raw: String) -> Result<Vec<JsonToken>, JsonTokenError> {
 
     while let Some(c) = chars.next() {
         match c {
-            '{' => {
-                vec.push(JsonToken::OpenCurlyBracket);
-            }
-            '}' => {
-                vec.push(JsonToken::CloseCurlyBracket);
-            }
-            '[' => {
-                vec.push(JsonToken::OpenSquareBracket);
-            }
-            ']' => {
-                vec.push(JsonToken::CloseSquareBracket);
-            }
-            ':' => {
-                vec.push(JsonToken::Colon);
-            }
-            ',' => {
-                vec.push(JsonToken::Comma);
-            }
+            '{' => vec.push(JsonToken::OpenCurlyBracket),
+            '}' => vec.push(JsonToken::CloseCurlyBracket),
+            '[' => vec.push(JsonToken::OpenSquareBracket),
+            ']' => vec.push(JsonToken::CloseSquareBracket),
+            ':' => vec.push(JsonToken::Colon),
+            ',' => vec.push(JsonToken::Comma),
             '"' => {
                 let mut json_string = String::new();
 

@@ -15,8 +15,6 @@ pub fn parse_json_and_print(text: String) {
             println!("Tokens: {:?}", tokens);
             println!("JSON: {:?}", json);
         }
-        Err(err) => {
-            eprintln!("Error: {}", err);
-        }
+        Err(err) => eprintln!("Error: {}", err),
     };
 }
